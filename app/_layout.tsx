@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import AboutScreen from './about';
+import AdminScreen from './admin'; // Import the admin screen
 import ArchivesScreen from './archives';
 import AccueilScreen from './index';
 import PrayerScreen from './prayer';
@@ -69,7 +70,15 @@ export default function TabsLayout() {
           ),
         }}
       />
-      {/* Meditation routes are not included, so they won't show in the tab bar */}
+      <Tab.Screen
+        name="Admin"
+        component={AdminScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="shield-checkmark-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 }

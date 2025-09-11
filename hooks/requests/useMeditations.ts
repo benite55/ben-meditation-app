@@ -1,6 +1,5 @@
-import { Meditation } from "@/data/types";
 import { supabase } from "@/lib/supabase";
-import { MutationResult, PrayerRequest } from "@/lib/types";
+import { Meditation, MutationResult } from "@/lib/types";
 import useSWR, { mutate } from "swr";
 
 
@@ -24,19 +23,26 @@ export function useGetMeditations() {
   return { meditations: data, loading, error };
 }
 
+
 export function useCreateMeditation() {
   const createMeditation = async (
     userId: string,
     title: string,
     description: string,
-    audioUrl: string
-  ): Promise<MutationResult<Meditation>> => {
+    audioUrl: string,
+    verse: string,
+    text: string,
+    date:string
+
+  ) => {
     try {
-      const { data, error } = await supabase.rpc("add_meditation", {
-        p_user_id: userId,
-        p_title: title,
-        p_description: description,
-        p_audio_url: audioUrl,
+      const { data, error } = await supabase.rpc('add_meditation', {
+          p_user_id: userId,
+          p_title: title,
+          p_description: description,
+          p_verse: verse,
+          p_date: date,
+          p_audio_url: audioUrl
       });
       if (error) throw error;
       await mutate(["get_meditations"]);
@@ -119,32 +125,4 @@ export function useAddComment() {
     }
   };
   return { addComment };
-}
-
-// ===========================
-// Prayer Requests Hooks
-// ===========================
-export function useGetPrayerRequests() {
-  const { data, error, isValidating: loading } = useSWR<PrayerRequest[]>(
-    ["get_prayer_requests"],
-    () => fetcher("get_prayer_requests")
-  );
-  return { requests: data, loading, error };
-}
-
-export function useAddPrayerRequest() {
-  const addRequest = async (userId: string, request: string): Promise<MutationResult<PrayerRequest>> => {
-    try {
-      const { data, error } = await supabase.rpc("add_prayer_request", {
-        p_user_id: userId,
-        p_request: request,
-      });
-      if (error) throw error;
-      await mutate(["get_prayer_requests"]);
-      return { data, error: null };
-    } catch (err: any) {
-      return { data: null, error: err };
-    }
-  };
-  return { addRequest };
 }

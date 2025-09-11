@@ -13,6 +13,9 @@ export interface Meditation {
   user_id: string;
   title: string;
   description: string;
+  date: string; 
+  verse: string;
+  text: string;
   audio_url: string;
   created_at: string;
   likes_count: number;
