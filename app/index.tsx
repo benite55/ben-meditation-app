@@ -1,12 +1,34 @@
+import { Session } from '@supabase/supabase-js';
 import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Auth from '../components/auth/login';
 import LanguageSelector from '../components/LanguageSelector';
-import { getTodayMeditation } from '././meditation/today';
-
+import { supabase } from '../lib/supabase';
+import { getTodayMeditation } from './meditation/today';
 
 export default function HomeScreen() {
   const router = useRouter();
   const meditationDuJour = getTodayMeditation();
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
+
+  if (!session || !session.user) {
+    return <Auth />;
+  }
 
   const today = new Date().toLocaleDateString('fr-FR', {
     weekday: 'long',
@@ -17,37 +39,35 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-        <View style={styles.content}>
-          {/* Top Bar */}
-      <View style={styles.topBar}>
-        <LanguageSelector />
-        <Text style={styles.devotionsTitle}>Dev-M</Text>
+      <View style={styles.content}>
+        {/* Top Bar */}
+        <View style={styles.topBar}>
+          <LanguageSelector />
+          <Text style={styles.devotionsTitle}>Dev-M</Text>
+        </View>
+
+        {/* Center Message */}
+        <View style={styles.welcomeBox}>
+          <Image source={require('../assets/images/bg.jpeg')} style={styles.image} />
+          <Text style={styles.welcomeText}>Bienvenue dans la dévotion matinale</Text>
+          <Text style={styles.text}>Vous esperans bien portant,voici la meditation d'aujourd'hui</Text>
+        </View>
+
+        {/* Date + Button */}
+        <Text style={styles.date}>{today}</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            if (meditationDuJour) {
+              router.push(`./meditation/${meditationDuJour.id}`);
+            } else {
+              alert("Aucune méditation disponible pour aujourd'hui.");
+            }
+          }}
+        >
+          <Text style={styles.buttonText}>Méditer</Text>
+        </TouchableOpacity>
       </View>
-
-      {/* Center Message */}
-      <View style={styles.welcomeBox}>
-        <Image source={require('../assets/images/bg.jpeg')} style={styles.image} />
-        <Text style={styles.welcomeText}>Bienvenue dans la dévotion matinale</Text>
-        <Text style={styles.text}>Vous esperans bien portant,voici la meditation d'aujourd'hui</Text>
-
-      </View>
-
-      {/* Date + Button */}
-      <Text style={styles.date}>{today}</Text>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => {
-          if (meditationDuJour) {
-            router.push(`./meditation/${meditationDuJour.id}`);
-          } else {
-            alert("Aucune méditation disponible pour aujourd'hui.");
-          }
-        }}
-      >
-        <Text style={styles.buttonText}>Méditer</Text>
-      </TouchableOpacity>
-  </View>
-     
     </View>
   );
 }
@@ -58,15 +78,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#fffbe6', 
   },
   content: {
-  flex: 1,
-  paddingTop: 20, 
-  padding: 20, 
-
-},
+    flex: 1,
+    paddingTop: 20, 
+    padding: 20, 
+  },
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: 20,
   },
   devotionsTitle: {
     fontSize: 20,
@@ -82,7 +102,6 @@ const styles = StyleSheet.create({
     height: 250,
     resizeMode: 'cover',
     borderRadius: 12,
-
   },
   welcomeText: {
     fontSize: 25,
@@ -97,7 +116,7 @@ const styles = StyleSheet.create({
   text:{
     fontSize: 16,
     color: 'rgba(0, 0, 0, 0.5)',
-   textAlign: 'center',
+    textAlign: 'center',
   },
   date: {
     textAlign: 'center',

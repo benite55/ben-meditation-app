@@ -1,9 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import React from 'react';
+import AboutScreen from './about';
+import ArchivesScreen from './archives';
+import AccueilScreen from './index';
+import PrayerScreen from './prayer';
+import ProfileScreen from './profile/index';
+
+const Tab = createBottomTabNavigator();
 
 export default function TabsLayout() {
   return (
-    <Tabs
+    <Tab.Navigator
       screenOptions={{
         tabBarActiveTintColor: "#1d2052",
         tabBarInactiveTintColor: "#aaa",
@@ -16,42 +24,52 @@ export default function TabsLayout() {
         headerShown: false,
       }}
     >
-      <Tabs.Screen
-        name="index"
+      <Tab.Screen
+        name="Accueil"
+        component={AccueilScreen}
         options={{
-          title: "Accueil",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
       />
-      <Tabs.Screen
-        name="archives"
+      <Tab.Screen
+        name="Archives"
+        component={ArchivesScreen}
         options={{
-          title: "Archives",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="albums-outline" size={size} color={color} />
           ),
         }}
       />
-      <Tabs.Screen
-        name="prayer"
+      <Tab.Screen
+        name="Requête"
+        component={PrayerScreen}
         options={{
-          title: "Requête",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbubble-ellipses-outline" size={size} color={color} />
           ),
         }}
       />
-      <Tabs.Screen
-        name="about"
+      <Tab.Screen
+        name="À propos"
+        component={AboutScreen}
         options={{
-          title: "À propos",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="information-circle-outline" size={size} color={color} />
           ),
         }}
       />
-    </Tabs>
+      <Tab.Screen
+        name="Profil"
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-circle-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      {/* Meditation routes are not included, so they won't show in the tab bar */}
+    </Tab.Navigator>
   );
 }
