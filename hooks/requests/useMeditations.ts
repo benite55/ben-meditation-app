@@ -29,11 +29,9 @@ export function useCreateMeditation() {
     userId: string,
     title: string,
     description: string,
-    audioUrl: string,
+    date:string,
     verse: string,
-    text: string,
-    date:string
-
+    audioUrl: string,
   ) => {
     try {
       const { data, error } = await supabase.rpc('add_meditation', {

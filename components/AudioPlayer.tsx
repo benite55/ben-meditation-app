@@ -6,7 +6,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
-  source: number; 
+  source: string; 
+  style?: object;
 };
 
 export default function AudioPlayer({ source }: Props) {
@@ -115,9 +116,9 @@ if (status?.isLoaded) {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 40,
+    flex: 1,
     padding: 10,
-    backgroundColor: "#f1f1f1",
+    backgroundColor: "#f6f8fa",
     borderRadius: 10,
   },
   sliderRow: {
@@ -127,8 +128,8 @@ const styles = StyleSheet.create({
 },
   playButton: {
     backgroundColor: "#1d2052",
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",

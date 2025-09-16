@@ -1,34 +1,11 @@
-import { Session } from '@supabase/supabase-js';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Auth from '../components/auth/login';
 import LanguageSelector from '../components/LanguageSelector';
-import { supabase } from '../lib/supabase';
 import { getTodayMeditation } from './meditation/today';
 
 export default function HomeScreen() {
   const router = useRouter();
   const meditationDuJour = getTodayMeditation();
-  const [session, setSession] = useState<Session | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => {
-      listener?.subscription.unsubscribe();
-    };
-  }, []);
-
-  if (!session || !session.user) {
-    return <Auth />;
-  }
 
   const today = new Date().toLocaleDateString('fr-FR', {
     weekday: 'long',
@@ -50,11 +27,13 @@ export default function HomeScreen() {
         <View style={styles.welcomeBox}>
           <Image source={require('../assets/images/bg.jpeg')} style={styles.image} />
           <Text style={styles.welcomeText}>Bienvenue dans la dévotion matinale</Text>
-          <Text style={styles.text}>Vous esperans bien portant,voici la meditation d'aujourd'hui</Text>
+          <Text style={styles.text}>Vous esperans bien portant, voici la meditation d'aujourd'hui</Text>
         </View>
 
-        {/* Date + Button */}
+        {/* Date */}
         <Text style={styles.date}>{today}</Text>
+
+        {/* Buttons */}
         <TouchableOpacity
           style={styles.button}
           onPress={() => {
@@ -65,7 +44,13 @@ export default function HomeScreen() {
             }
           }}
         >
-          <Text style={styles.buttonText}>Méditer</Text>
+          <Text style={styles.buttonText}>Méditation du jour</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: '#1DB954', marginTop: 10 }]}
+          onPress={() => router.push('./meditation/choose-day')}
+        >
+          <Text style={styles.buttonText}>Choisir un jour</Text>
         </TouchableOpacity>
       </View>
     </View>

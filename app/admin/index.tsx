@@ -58,8 +58,8 @@ export default function AdminScreen() {
             <Ionicons name="close" size={32} color="#1d2052" />
           </TouchableOpacity>
           <CreateMeditationForm
-            onCreate={async (title, description, date, verse, text, audioUrl) => {
-             const {data, error } = await createMeditation(userId, title, description, date, verse, text, audioUrl);
+            onCreate={async (title, description, date, verse, audioUrl) => {
+             const {data, error } = await createMeditation(userId, title, description, date, verse, audioUrl);
               if (error) setError(error);
               if (data) {
                   setError(null);
@@ -95,7 +95,12 @@ export default function AdminScreen() {
         <View style={styles.actionsRow}>
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => setShowMeditationForm(true)}
+            onPress={() => {
+              setShowMeditationForm(true);
+              setError(null);
+              setSuccess(null);
+            }
+          }
           >
             <Ionicons name="create-outline" size={20} color="#1d2052" />
             <Text style={styles.actionText}>Create Meditation</Text>
