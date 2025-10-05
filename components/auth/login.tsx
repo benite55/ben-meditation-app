@@ -1,15 +1,17 @@
 import { supabase } from '@/lib/supabase'
 import { FontAwesome, Ionicons } from '@expo/vector-icons'
 import * as ImagePicker from 'expo-image-picker'
+import { useRouter } from 'expo-router'
 import React, { useState } from 'react'
 import { ActivityIndicator, Image, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { styles } from './_styleSheet'
 
-export default function Auth() {
+export default function Auth({ isSignUpProp=false }: { isSignUpProp?: boolean }) {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [isSignUp, setIsSignUp] = useState(false)
+  const [isSignUp, setIsSignUp] = useState(isSignUpProp)
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [church, setChurch] = useState('')
@@ -17,6 +19,7 @@ export default function Auth() {
   const [avatarUploading, setAvatarUploading] = useState(false)
   const [notification, setNotification] = useState<string | null>(null)
   const [avatarFile, setAvatarFile] = useState<any>(null)
+  const [successfull, setSuccessfull] = useState<string | null>(null)
 
   async function signInWithEmail() {
     setLoading(true)
@@ -26,6 +29,10 @@ export default function Auth() {
       password,
     })
     if (error) setNotification(error.message)
+    if (!error) {
+      setSuccessfull('Bienvenue !')
+      router.replace('/')
+    }
     setLoading(false)
   }
 
@@ -33,21 +40,7 @@ export default function Auth() {
     setLoading(true)
     setNotification(null)
     
-    if (avatar) {
-      setAvatarUploading(true)
-      const ext = avatar.split('.').pop()
-      const fileName = `${Date.now()}.${ext}`
-      const { data, error: uploadError } = await supabase.storage.from('avatars').upload(fileName, avatarFile)
-      setAvatarUploading(false)
-      if (uploadError) {
-        console.log('Avatar upload error:', uploadError)
-        setNotification('Avatar upload failed')
-        setLoading(false)
-        return
-      }
-      avatarUrl = supabase.storage.from('avatars').getPublicUrl(fileName).data.publicUrl
-    }
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -56,11 +49,15 @@ export default function Auth() {
           phone,
           church,
           avatar,
+          role: 'Admin'
         },
       },
     })
     if (error) setNotification(error.message)
-    if (!error && !data.session) setNotification('Please check your inbox for email verification!')
+    if (!error) {
+      setSuccessfull('Inscription réussie. Bienvenue !')
+      setIsSignUp(false)
+    }
     setLoading(false)
   }
 
@@ -88,7 +85,7 @@ async function pickAvatar() {
       const blob = await response.blob()
 
       // Upload to Supabase
-      const { data, error: uploadError } = await supabase
+      const { error: uploadError } = await supabase
         .storage
         .from('avatars')
         .upload(fileName, blob, {
@@ -121,11 +118,11 @@ async function pickAvatar() {
 
 
   function handleForgotPassword() {
-    setNotification('Password reset functionality goes here.')
+    setNotification('Password reset functionality not yet implemented.')
   }
 
   function handleGoogleLogin() {
-    setNotification('Google login functionality goes here.')
+    setNotification('Google login functionality not yet implemented')
   }
 
   return (
@@ -154,6 +151,11 @@ async function pickAvatar() {
       {notification && (
         <View style={styles.notificationBox}>
           <Text style={styles.notificationText}>{notification}</Text>
+        </View>
+      )}
+      {successfull && (
+        <View style={styles.successfullBox}>
+          <Text style={styles.successfullText}>{successfull}</Text>
         </View>
       )}
       <View style={styles.inputContainer}>

@@ -1,6 +1,8 @@
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
 import {
+  Platform,
   ScrollView,
   Text,
   TextInput,
@@ -9,7 +11,6 @@ import {
 } from "react-native";
 import CreativeRecorder from "./reccording";
 import { meditationFormStyleSheet as styles } from "./style";
-
 
 interface Props {
   onCreate: (
@@ -26,25 +27,22 @@ interface Props {
 export default function CreateMeditationForm({ onCreate, error, success }: Props) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [verse, setVerse] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
   const [localError, setLocalError] = useState("");
 
   // ------------------ SUBMIT FORM ------------------
   const handleSubmit = () => {
-    if (
-      !title.trim() ||
-      !description.trim() ||
-      !date.trim() ||
-      !verse.trim() ||
-      !audioUrl.trim()
-    ) {
+    if (!title.trim() || !description.trim() || !date || !verse.trim() || !audioUrl.trim()) {
       setLocalError("Please fill in all required fields and upload audio.");
       return;
     }
+
+    const formattedDate = date.toISOString().split("T")[0]; // YYYY-MM-DD
     setLocalError("");
-    onCreate(title, description, date, verse, audioUrl);
+    onCreate(title, description, formattedDate, verse, audioUrl);
   };
 
   return (
@@ -57,9 +55,7 @@ export default function CreateMeditationForm({ onCreate, error, success }: Props
       {(error || localError) && (
         <Text style={styles.error}>{error?.message || localError}</Text>
       )}
-      {success && (
-        <Text style={{ ...styles.success, color: "green" }}>{success}</Text>
-      )}
+      {success && <Text style={{ ...styles.success, color: "green" }}>{success}</Text>}
 
       {/* Title */}
       <View style={styles.inputRow}>
@@ -86,17 +82,30 @@ export default function CreateMeditationForm({ onCreate, error, success }: Props
         />
       </View>
 
-      {/* Date */}
+      {/* Date Picker */}
       <View style={styles.inputRow}>
         <Ionicons name="calendar-outline" size={20} color="#007bff" style={styles.icon} />
-        <TextInput
-          placeholder="Date YYYY-MM-DD *"
-          placeholderTextColor="#222"
-          value={date}
-          onChangeText={setDate}
-          style={styles.input}
-        />
+        <TouchableOpacity onPress={() => setShowDatePicker(true)} style={{ flex: 1 }}>
+          <Text style={[styles.input, { paddingVertical: 12 }]}>
+            {date ? date.toISOString().split("T")[0] : "Select Date *"}
+          </Text>
+        </TouchableOpacity>
       </View>
+
+      {showDatePicker && (
+  <DateTimePicker
+    value={date || new Date()}
+    mode="date"
+    display={Platform.OS === "ios" ? "spinner" : "default"}
+    textColor={Platform.OS === "ios" ? "#000" : undefined} // works only on iOS
+    themeVariant={Platform.OS === "android" ? "light" : undefined} // forces light theme on Android
+    onChange={(event, selectedDate) => {
+      setShowDatePicker(Platform.OS === "ios"); // keep open on iOS
+      if (selectedDate) setDate(selectedDate);
+    }}
+  />
+)}
+
 
       {/* Verse */}
       <View style={styles.inputRow}>
@@ -133,5 +142,3 @@ export default function CreateMeditationForm({ onCreate, error, success }: Props
     </ScrollView>
   );
 }
-
-

@@ -19,6 +19,8 @@ export interface Meditation {
   audio_url: string;
   created_at: string;
   likes_count: number;
+  like_user_ids: string[]; // Array of user IDs who liked
+  comment_ids: number[]; // Array of comment IDs
   comments_count: number;
 }
 
@@ -41,6 +43,11 @@ export interface PrayerRequest {
   user_id: string;
   request: string;
   created_at: string;
+  name: string,
+  church: string,
+  phone: string,
+  email: string,
+  avatar: string | null,
 }
 
 // ---------------------------

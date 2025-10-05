@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { Meditation, MutationResult } from "@/lib/types";
+import React from "react";
 import useSWR, { mutate } from "swr";
-
 
 // ---------------------------
 // Helper fetcher
@@ -23,24 +23,23 @@ export function useGetMeditations() {
   return { meditations: data, loading, error };
 }
 
-
 export function useCreateMeditation() {
   const createMeditation = async (
     userId: string,
     title: string,
     description: string,
-    date:string,
+    date: string,
     verse: string,
     audioUrl: string,
   ) => {
     try {
-      const { data, error } = await supabase.rpc('add_meditation', {
-          p_user_id: userId,
-          p_title: title,
-          p_description: description,
-          p_verse: verse,
-          p_date: date,
-          p_audio_url: audioUrl
+      const { data, error } = await supabase.rpc("add_meditation", {
+        p_user_id: userId,
+        p_title: title,
+        p_description: description,
+        p_date: date,
+        p_verse: verse,
+        p_audio_url: audioUrl,
       });
       if (error) throw error;
       await mutate(["get_meditations"]);
@@ -103,12 +102,15 @@ export function useGetComments(meditationId: number) {
 }
 
 export function useAddComment() {
+  const [loading, setLoading] = React.useState(false);
   const addComment = async (
     userId: string,
     meditationId: number,
     content: string
   ): Promise<MutationResult<Comment>> => {
+
     try {
+      setLoading(true);
       const { data, error } = await supabase.rpc("add_comment", {
         p_user_id: userId,
         p_meditation_id: meditationId,
@@ -117,10 +119,12 @@ export function useAddComment() {
       if (error) throw error;
       await mutate(["get_comments", meditationId]);
       await mutate(["get_meditations"]);
-      return { data, error: null };
+      setLoading(false);
+      return { data, error: null, };
     } catch (err: any) {
-      return { data: null, error: err };
+      setLoading(false);
+      return { data: null, error: err, };
     }
   };
-  return { addComment };
+  return { addComment, loading };
 }

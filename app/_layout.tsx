@@ -2,13 +2,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import AboutScreen from './about';
-import AdminScreen from './admin'; // Import the admin screen
-import ArchivesScreen from './archives';
 import AccueilScreen from './index';
+import ArchivesScreen from './meditations';
 import PrayerScreen from './prayer';
 import ProfileScreen from './profile/index';
 
 const Tab = createBottomTabNavigator();
+
+export type RootTabParamList = {
+  Accueil: undefined;
+  Meditations: undefined;
+  Request: undefined;
+  'About': undefined;
+  Profil: { isSignUp?: boolean };
+};
+
 
 export default function TabsLayout() {
   return (
@@ -26,7 +34,7 @@ export default function TabsLayout() {
       }}
     >
       <Tab.Screen
-        name="Accueil"
+        name="Home"
         component={AccueilScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -44,7 +52,7 @@ export default function TabsLayout() {
         }}
       />
       <Tab.Screen
-        name="Requête"
+        name="Request"
         component={PrayerScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -53,7 +61,7 @@ export default function TabsLayout() {
         }}
       />
       <Tab.Screen
-        name="À propos"
+        name="About"
         component={AboutScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -61,24 +69,20 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tab.Screen
-        name="Profil"
-        component={ProfileScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-circle-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Admin"
-        component={AdminScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="shield-checkmark-outline" size={size} color={color} />
-          ),
-        }}
-      />
+
+
+
+    <Tab.Screen
+      name="Profil"
+      component={ProfileScreen}
+      initialParams={{ isSignUp: false }} // optional param
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Ionicons name="person-circle-outline" size={size} color={color} />
+        ),
+      }}
+    />
+
     </Tab.Navigator>
   );
 }

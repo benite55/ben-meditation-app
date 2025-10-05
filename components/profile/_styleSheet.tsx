@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
 	logoutContainer: {
-		marginTop: 32,
+		marginVertical: 32,
 		alignItems: 'center',
 	},
 	logoutLabel: {

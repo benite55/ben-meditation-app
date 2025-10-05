@@ -86,7 +86,7 @@ export const styles = StyleSheet.create({
   },
   forgotPassword: {
     alignSelf: 'flex-end',
-    marginRight: 10,
+    marginRight: 150,
     marginBottom: 10,
   },
   forgotText: {
@@ -146,7 +146,7 @@ export const styles = StyleSheet.create({
     fontSize: 16,
   },
   notificationBox: {
-    backgroundColor: '#ffe5e5',
+    backgroundColor: '#e5ffe7ff',
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
@@ -155,7 +155,21 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   notificationText: {
-    color: '#d32f2f',
+    color: '#2fd353ff',
+    fontSize: 15,
+    textAlign: 'center',
+  },
+  successfullBox: {
+    backgroundColor: '#e5ffe7ff',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    width: '100%',
+    maxWidth: 350,
+    alignItems: 'center',
+  },
+  successfullText: {
+    color: '#2fd353ff',
     fontSize: 15,
     textAlign: 'center',
   },
