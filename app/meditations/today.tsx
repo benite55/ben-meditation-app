@@ -86,7 +86,7 @@ export default function TodayMeditation() {
       <Text style={{ fontSize: 16, fontStyle: "italic", marginBottom: 20 }}>
         📖 {meditation.verse}
       </Text>
-      <Button title="▶️ Écouter l'audio" onPress={playSound} />
+      <Button title="▶️ Listen to Audio" onPress={playSound} />
     </ScrollView>
   );
 }

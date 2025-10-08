@@ -2,43 +2,67 @@ import CreatePrayerRequestForm from "@/components/meditaion/CreatePrayerRequestF
 import PrayerCard from "@/components/meditaion/PrayerCard";
 import { useAddPrayerRequest, useGetPrayerRequests, useGetUserPrayerRequests } from "@/hooks/requests/usePrayerRequests";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Modal, Text, TouchableOpacity, View } from "react-native";
 import { mainStyleSheet as styles } from "./style";
 
-export default function PrayersTab({ userId, role }: { userId: string, role?:string }) {
-  
-  const { requests: adminRequests, loading: isLoadingAdminrPrayers } = useGetPrayerRequests();
-   const { requests: userRequests, loading: isLoadingUserPrayers } = useGetUserPrayerRequests(role === 'Admin' ? undefined : userId);
+export default function PrayersTab({ userId, role }: { userId: string, role?: string }) {
+  const { requests: adminRequests, loading: isLoadingAdminPrayers, refetch: refetchAdmin } = useGetPrayerRequests();
+  const { requests: userRequests, loading: isLoadingUserPrayers, refetch: refetchUser } = useGetUserPrayerRequests(role === 'Admin' ? undefined : userId);
 
-  const requests = role === 'Admin' ? adminRequests : userRequests;
-  const loading = role === 'Admin' ? isLoadingAdminrPrayers : isLoadingUserPrayers;
+  const [requests, setRequests] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const { addRequest } = useAddPrayerRequest();
   const [showPrayerForm, setShowPrayerForm] = useState(false);
   const [error, setError] = useState<any>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Call prayer request form
+  // Met à jour la liste des prières selon le rôle et le chargement
+  useEffect(() => {
+    if (role === 'Admin') {
+      setRequests(adminRequests || []);
+      setLoading(isLoadingAdminPrayers);
+    } else {
+      setRequests(userRequests || []);
+      setLoading(isLoadingUserPrayers);
+    }
+  }, [adminRequests, userRequests, isLoadingAdminPrayers, isLoadingUserPrayers, role]);
+
+  // Ajouter une nouvelle prière
   const handleAddPrayer = async (description: string) => {
     setError(null);
     setSuccess(null);
+
     if (!description.trim()) {
       setError("Prayer request cannot be empty.");
       return;
     }
+
     const { data, error } = await addRequest(userId, description);
-    if (error) setError(error.message);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
     if (data) {
       setSuccess("Prayer request added!");
       setError(null);
       setShowPrayerForm(false);
+
+      // Mise à jour instantanée pour que l'utilisateur voie sa prière
+      if (role === 'Admin') {
+        refetchAdmin?.();
+      } else {
+        // Ajouter localement la nouvelle prière dans le state
+        setRequests(prev => [data, ...prev]);
+      }
     }
   };
 
   return (
-    <View>
-      {/* Prayer Request Modal */}
+    <View style={{ flex: 1 }}>
+      {/* Formulaire de prière */}
       <Modal visible={showPrayerForm} animationType="slide" transparent>
         <View style={styles.fullScreenForm}>
           <TouchableOpacity
@@ -55,9 +79,10 @@ export default function PrayersTab({ userId, role }: { userId: string, role?:str
         </View>
       </Modal>
 
+      {/* Header + Ajouter */}
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
         <Text style={styles.section}>Prayer Requests</Text>
-        <View style={styles.actionsRow}>
+        {role !== 'Admin' && (
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => {
@@ -69,18 +94,20 @@ export default function PrayersTab({ userId, role }: { userId: string, role?:str
             <Ionicons name="add-circle-outline" size={20} color="#1d2052" />
             <Text style={styles.actionText}>Add Prayer</Text>
           </TouchableOpacity>
-        </View>
+        )}
       </View>
+
+      {/* Liste des prières */}
       <View style={styles.feed}>
         {loading ? (
-          <ActivityIndicator />
-        ) : requests?.length === 0 ? (
+          <ActivityIndicator size="large" color="#1d2052" />
+        ) : Array.isArray(requests) && requests.length > 0 ? (
+          requests.map((p) => <PrayerCard key={p.id} role={role} prayer={p} />)
+        ) : (
           <View style={styles.emptyIndicator}>
             <FontAwesome5 name="sad-tear" size={40} color="#aaa" />
             <Text style={styles.emptyText}>No prayer requests found.</Text>
           </View>
-        ) : (
-          requests?.map((p) => <PrayerCard key={p.id} role={role} prayer={p} />)
         )}
       </View>
     </View>

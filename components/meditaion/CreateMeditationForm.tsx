@@ -35,7 +35,14 @@ export default function CreateMeditationForm({ onCreate, error, success }: Props
 
   // ------------------ SUBMIT FORM ------------------
   const handleSubmit = () => {
-    if (!title.trim() || !description.trim() || !date || !verse.trim() || !audioUrl.trim()) {
+    if (
+      !title.trim() ||
+      !description.trim() ||
+      !date ||
+      isNaN(date.getTime()) ||
+      !verse.trim() ||
+      !audioUrl.trim()
+    ) {
       setLocalError("Please fill in all required fields and upload audio.");
       return;
     }
@@ -45,13 +52,19 @@ export default function CreateMeditationForm({ onCreate, error, success }: Props
     onCreate(title, description, formattedDate, verse, audioUrl);
   };
 
+  // Pour afficher la date correctement
+  const displayDate =
+    date && !isNaN(date.getTime()) ? date.toISOString().split("T")[0] : "Select Date *";
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <FontAwesome5 name="pray" size={28} color="#1d2052" />
         <Text style={styles.headerText}>Create Meditation</Text>
       </View>
 
+      {/* Error / Success */}
       {(error || localError) && (
         <Text style={styles.error}>{error?.message || localError}</Text>
       )}
@@ -85,27 +98,44 @@ export default function CreateMeditationForm({ onCreate, error, success }: Props
       {/* Date Picker */}
       <View style={styles.inputRow}>
         <Ionicons name="calendar-outline" size={20} color="#007bff" style={styles.icon} />
-        <TouchableOpacity onPress={() => setShowDatePicker(true)} style={{ flex: 1 }}>
-          <Text style={[styles.input, { paddingVertical: 12 }]}>
-            {date ? date.toISOString().split("T")[0] : "Select Date *"}
-          </Text>
-        </TouchableOpacity>
+
+        {Platform.OS === "web" ? (
+          <input
+            type="date"
+            value={date && !isNaN(date.getTime()) ? date.toISOString().split("T")[0] : ""}
+            onChange={(e) => {
+              const newDate = new Date(e.target.value);
+              if (!isNaN(newDate.getTime())) setDate(newDate);
+            }}
+            style={{
+              width: "100%",
+              padding: 10,
+              fontSize: 16,
+              borderRadius: 8,
+              borderColor: "#ccc",
+              borderWidth: 1,
+            }}
+          />
+        ) : (
+          <TouchableOpacity onPress={() => setShowDatePicker(true)} style={{ flex: 1 }}>
+            <Text style={[styles.input, { paddingVertical: 12 }]}>{displayDate}</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
-      {showDatePicker && (
-  <DateTimePicker
-    value={date || new Date()}
-    mode="date"
-    display={Platform.OS === "ios" ? "spinner" : "default"}
-    textColor={Platform.OS === "ios" ? "#000" : undefined} // works only on iOS
-    themeVariant={Platform.OS === "android" ? "light" : undefined} // forces light theme on Android
-    onChange={(event, selectedDate) => {
-      setShowDatePicker(Platform.OS === "ios"); // keep open on iOS
-      if (selectedDate) setDate(selectedDate);
-    }}
-  />
-)}
-
+      {showDatePicker && Platform.OS !== "web" && (
+        <DateTimePicker
+          value={date || new Date()}
+          mode="date"
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          textColor={Platform.OS === "ios" ? "#000" : undefined}
+          themeVariant={Platform.OS === "android" ? "light" : undefined}
+          onChange={(event, selectedDate) => {
+            setShowDatePicker(Platform.OS === "ios");
+            if (selectedDate && !isNaN(selectedDate.getTime())) setDate(selectedDate);
+          }}
+        />
+      )}
 
       {/* Verse */}
       <View style={styles.inputRow}>
@@ -136,6 +166,7 @@ export default function CreateMeditationForm({ onCreate, error, success }: Props
         ) : null}
       </View>
 
+      {/* Submit Button */}
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Create Meditation</Text>
       </TouchableOpacity>

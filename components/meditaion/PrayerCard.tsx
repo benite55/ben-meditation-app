@@ -43,10 +43,11 @@ export default function PrayerCard({ prayer, onStatusChange, role }: PrayerCardP
     <View style={styles.card}>
       {/* Status Badge */}
       <TouchableOpacity
-        style={[styles.badge, { backgroundColor: statusColor }]}
-        onPress={() => setModalVisible(true)}
-        disabled={updating }
-      >
+  style={[styles.badge, { backgroundColor: statusColor }]}
+  onPress={() => setModalVisible(true)}
+  activeOpacity={0.8}
+  disabled={updating}
+>
         <Text style={styles.badgeText}>{status.toUpperCase()}</Text>
       </TouchableOpacity>
 
@@ -107,15 +108,18 @@ const styles = StyleSheet.create({
   request: { marginTop: 6 },
   date: { fontSize: 10, color: "#666", marginTop: 4 },
 
-  badge: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 12,
-  },
+
   badgeText: { color: "#fff", fontWeight: "bold", fontSize: 10 },
+badge: {
+  position: "absolute",
+  top: 8,
+  right: 8,
+  paddingHorizontal: 14,
+  paddingVertical: 6, // légèrement plus grand pour plus de surface cliquable
+  borderRadius: 14,
+  zIndex: 10, // pour être au-dessus des autres éléments
+  elevation: 5, // effet Android
+},
 
   modalOverlay: {
     flex: 1,

@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 12, marginBottom: 16 },
   addButton: { backgroundColor: "#1d2052", padding: 12, borderRadius: 8, alignItems: "center", marginBottom: 12 },
   addButtonText: { color: "#fff", fontWeight: "bold" },
-  closeButton: { backgroundColor: "#888", padding: 12, borderRadius: 8,paddingVertical: 10, alignItems: "center" },
+  closeButton: { backgroundColor: "#888", padding: 12, borderRadius: 8, alignItems: "center", },
   closeButtonText: { color: "#fff", fontWeight: "bold" },
   textArea: {
   borderWidth: 1,

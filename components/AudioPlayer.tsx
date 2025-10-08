@@ -1,4 +1,3 @@
-
 import { Ionicons } from "@expo/vector-icons";
 import Slider from '@react-native-community/slider';
 import { Audio } from "expo-av";
@@ -26,13 +25,20 @@ export default function AudioPlayer({ source }: Props) {
   }, []);
 
   const loadAudio = async () => {
-    const { sound: playbackObject } = await Audio.Sound.createAsync(source, {
-      shouldPlay: false,
-      volume,
-    });
+    const { sound: playbackObject } = await Audio.Sound.createAsync(
+      { uri: source },
+      { shouldPlay: false, volume }
+    );
 
     sound.current = playbackObject;
 
+    // Récupérer la durée totale immédiatement
+    const status = await playbackObject.getStatusAsync();
+    if (status.isLoaded) {
+      setDuration(status.durationMillis || 0);
+    }
+
+    // Mettre à jour la position et lecture en temps réel
     playbackObject.setOnPlaybackStatusUpdate((status: any) => {
       if (status.isLoaded) {
         setPosition(status.positionMillis);
@@ -41,32 +47,19 @@ export default function AudioPlayer({ source }: Props) {
       }
     });
   };
-  const checkIfPlaying = async () => {
-  const status = await sound.current?.getStatusAsync();
 
-if (status?.isLoaded) {
-  console.log("Joue-t-il ?", status.isPlaying);
-} else {
-    console.log("Le son n'est pas chargé !");
-  }
-};
+  const togglePlayPause = async () => {
+    if (!sound.current) return;
 
- const togglePlayPause = async () => {
-  if (!sound.current) return;
-
-  const status = await (sound.current as Audio.Sound).getStatusAsync();
-  if (status.isLoaded) {
-    console.log("Durée totale :", status.durationMillis);
-    console.log("Position actuelle :", status.positionMillis);
-
-    if (status.isPlaying) {
-      await (sound.current as Audio.Sound).pauseAsync();
-    } else {
-      await (sound.current as Audio.Sound).playAsync();
+    const status = await sound.current.getStatusAsync();
+    if (status.isLoaded) {
+      if (status.isPlaying) {
+        await sound.current.pauseAsync();
+      } else {
+        await sound.current.playAsync();
+      }
     }
-  }
-};
-
+  };
 
   const handleSeek = async (value: number) => {
     if (sound.current) {
@@ -90,22 +83,21 @@ if (status?.isLoaded) {
   return (
     <View style={styles.container}>
       <View style={styles.sliderRow}>
-<TouchableOpacity onPress={togglePlayPause} style={styles.playButton}>
-        <Ionicons name={isPlaying ? "pause" : "play"} size={24} color="white" />
-      </TouchableOpacity>
+        <TouchableOpacity onPress={togglePlayPause} style={styles.playButton}>
+          <Ionicons name={isPlaying ? "pause" : "play"} size={24} color="white" />
+        </TouchableOpacity>
 
-      <Slider
-        style={styles.slider}
-        minimumValue={0}
-        maximumValue={duration}
-        value={position}
-        onSlidingComplete={handleSeek}
-        minimumTrackTintColor="#1d2052"
-        maximumTrackTintColor="#ccc"
-      />
-
+        <Slider
+          style={styles.slider}
+          minimumValue={0}
+          maximumValue={duration}
+          value={position}
+          onSlidingComplete={handleSeek}
+          minimumTrackTintColor="#1d2052"
+          maximumTrackTintColor="#ccc"
+        />
       </View>
-      
+
       <View style={styles.timeRow}>
         <Text style={styles.time}>{formatTime(position)}</Text>
         <Text style={styles.time}>{formatTime(duration)}</Text>
@@ -122,10 +114,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   sliderRow: {
-  flexDirection: "row",
-  alignItems: "center",
-  marginTop: 10,
-},
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
   playButton: {
     backgroundColor: "#1d2052",
     width: 40,
@@ -133,15 +125,12 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",
-    alignSelf:"baseline", 
     marginRight: 7, 
-   
   },
   slider: {
     width: "80%",
     height: 40,
     alignSelf: "flex-end",
-
   },
   timeRow: {
     width: "80%",
