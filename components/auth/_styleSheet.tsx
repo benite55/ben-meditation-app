@@ -146,7 +146,7 @@ export const styles = StyleSheet.create({
     fontSize: 16,
   },
   notificationBox: {
-    backgroundColor: '#e5ffe7ff',
+    backgroundColor: '#ffe5e5ff',
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
@@ -155,7 +155,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   notificationText: {
-    color: '#2fd353ff',
+    color: '#d32f2fff',
     fontSize: 15,
     textAlign: 'center',
   },

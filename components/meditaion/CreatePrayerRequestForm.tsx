@@ -45,7 +45,7 @@ export default function CreatePrayerRequestForm({ onCreate, error, success, isDa
     <ScrollView contentContainerStyle={themedStyles.pageContainer}>
       {/* 🔹 Top Bar */}
       <View style={themedStyles.topBar}>
-        <Text style={themedStyles.title}>Create Prayer Request</Text>
+        <Text style={themedStyles.title}>Write Prayer Request</Text>
       </View>
 
       {(error || localError) && (

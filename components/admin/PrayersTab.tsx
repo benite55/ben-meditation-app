@@ -1,7 +1,8 @@
+
 import CreatePrayerRequestForm from "@/components/meditaion/CreatePrayerRequestForm";
 import PrayerCard from "@/components/meditaion/PrayerCard";
 import { useAddPrayerRequest, useGetPrayerRequests, useGetUserPrayerRequests } from "@/hooks/requests/usePrayerRequests";
-import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Modal, Text, TouchableOpacity, View } from "react-native";
 import { mainStyleSheet as styles } from "./style";
@@ -105,7 +106,6 @@ export default function PrayersTab({ userId, role }: { userId: string, role?: st
           requests.map((p) => <PrayerCard key={p.id} role={role} prayer={p} />)
         ) : (
           <View style={styles.emptyIndicator}>
-            <FontAwesome5 name="sad-tear" size={40} color="#aaa" />
             <Text style={styles.emptyText}>No prayer requests found.</Text>
           </View>
         )}
